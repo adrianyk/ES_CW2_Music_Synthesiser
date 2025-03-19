@@ -5,6 +5,10 @@
 - Jungwon Bae (CID: 02032319)
 - Keegan Lee (CID: 01892378)
 
+## Table of Contents
+1. [Introduction](#Introduction)
+2. [Completed Core Functionalities](#Completed-Core-Functionalities)
+
 ## Introduction
 This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
 
