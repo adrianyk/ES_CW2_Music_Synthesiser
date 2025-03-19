@@ -99,10 +99,10 @@ This section identifies all the tasks performed by the synthesiser system and sp
 
 ### Test Modes vs. Normal Operation
 
-- **Test Modes (TEST_MODE ≠ 0):**  
+- **Test Modes (`TEST_MODE ≠ 0`):**  
   - Threads are disabled (using `#define DISABLE_THREADS`) to enable isolated performance measurements of individual routines.
   
-- **Normal Operation (TEST_MODE = 0):**  
+- **Normal Operation (`TEST_MODE = 0`):**  
   - All tasks and ISRs run concurrently under FreeRTOS.
 
 ## Task Characterisation
@@ -201,7 +201,9 @@ $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau
 
 1. **For scanKeysTask (T₁):**  
    $$\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5$$
+   
    Thus, there are 5 instances of scanKeysTask in 100 ms.  
+   
    Total interference from scanKeysTask:  
    $$ 5 \times 101.6 \, \mu s = 508 \, \mu s $$
 
@@ -211,7 +213,7 @@ $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau
    $$ 2 \times 4.6 \, \mu s = 9.2 \, \mu s $$
 
 3. **For displayUpdateTask (T₃):**  
-   $$ T_3 \approx 52 \, \text{ms} $
+   $$ T_3 \approx 52 \, \text{ms} $$
 
 So, the worst-case response time for displayUpdateTask is:
 
