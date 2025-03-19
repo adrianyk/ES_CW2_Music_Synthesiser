@@ -5,18 +5,22 @@
 - Jungwon Bae (CID: 02032319)
 - Keegan Lee (CID: 01892378)
 
+## Table of Contents
+1. [Introduction](#Introduction)
+2. [Completed Core Functionalities](#Completed-Core-Functionalities)
+
 ## Introduction
 This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
 
 ## Completed Core Functionalities
-1. The synthesiser shall play the appropriate musical tone as a sawtooth wave when a key is pressed 
-2. There shall be no perceptible delay between pressing a key and the tone starting 
-3. There shall be a volume control with at least 8 increments, which shall be operated by turning a knob 
-4. The OLED display shall show the name of the note being played and the current volume level
-5. Every 100ms the OLED display shall refresh and an LED shall toggle
-6. The synthesiser shall be configurable, during compilation or operation, to act as a sender module or receiver module.
-7. If the synthesiser is configured as a sender, it shall send a message on the CAN bus whenever a key is pressed or released
-8. If the synthesiser is configured as a receiver, it shall play a note or stop playing a note when it receives an appropriate message on the CAN bus
+3. The synthesiser shall play the appropriate musical tone as a sawtooth wave when a key is pressed 
+4. There shall be no perceptible delay between pressing a key and the tone starting 
+5. There shall be a volume control with at least 8 increments, which shall be operated by turning a knob 
+6. The OLED display shall show the name of the note being played and the current volume level
+7. Every 100ms the OLED display shall refresh and an LED shall toggle
+8. The synthesiser shall be configurable, during compilation or operation, to act as a sender module or receiver module.
+9. If the synthesiser is configured as a sender, it shall send a message on the CAN bus whenever a key is pressed or released
+10. If the synthesiser is configured as a receiver, it shall play a note or stop playing a note when it receives an appropriate message on the CAN bus
 
 
 ## Task Identification and Implementation
@@ -25,7 +29,7 @@ This section identifies all the tasks performed by the synthesiser system and sp
 
 ### FreeRTOS Tasks (Threads)
 
-1. **scanKeysTask**  
+11. **scanKeysTask**  
    - **Implementation:** FreeRTOS thread  
    - **Purpose:**  
      - Scans the key matrix every 20 ms to detect key presses and releases.  
@@ -33,28 +37,28 @@ This section identifies all the tasks performed by the synthesiser system and sp
      - Shares input data with other tasks via a mutex.
    - **Location in Code:** Defined in the block under `#if TEST_MODE == 0`.
 
-2. **metronomeTask**  
+12. **metronomeTask**  
    - **Implementation:** FreeRTOS thread  
    - **Purpose:**  
      - Runs every 50 ms to update metronome timing based on the tempo knob.  
      - Computes the appropriate timer interval and updates the metronome timer’s overflow.
    - **Location in Code:** Defined in the block under `#if TEST_MODE == 0`.
 
-3. **displayUpdateTask**  
+13. **displayUpdateTask**  
    - **Implementation:** FreeRTOS thread  
    - **Purpose:**  
      - Updates the OLED display every 100 ms to show the current note (or octave) and volume level.  
      - Toggles an LED with each update.
    - **Location in Code:** Defined in the block under `#if TEST_MODE != 2`.
 
-4. **CAN_TX_Task** (Sender Mode Only)  
+14. **CAN_TX_Task** (Sender Mode Only)  
    - **Implementation:** FreeRTOS thread  
    - **Purpose:**  
      - Waits for key events on a message queue.  
      - Transmits CAN messages after acquiring a counting semaphore to ensure a transmit mailbox is available.
    - **Location in Code:** Enclosed within `#ifdef MODULE_MODE_SENDER` and `#if TEST_MODE == 0`.
 
-5. **decodeTask** (Receiver Mode Only)  
+15. **decodeTask** (Receiver Mode Only)  
    - **Implementation:** FreeRTOS thread  
    - **Purpose:**  
      - Processes incoming CAN messages from a queue.  
@@ -63,7 +67,7 @@ This section identifies all the tasks performed by the synthesiser system and sp
 
 ### Interrupt Service Routines (ISRs)
 
-1. **sampleISR**  
+16. **sampleISR**  
    - **Implementation:** Hardware Timer Interrupt  
    - **Purpose:**  
      - Executes at a high frequency to perform audio synthesis.  
@@ -71,20 +75,20 @@ This section identifies all the tasks performed by the synthesiser system and sp
      - Computes the final audio sample and writes it to the output.
    - **Location in Code:** Defined under `#ifdef MODULE_MODE_RECEIVER` and `#if TEST_MODE == 0`.
 
-2. **metronomeISR**  
+17. **metronomeISR**  
    - **Implementation:** Hardware Timer Interrupt  
    - **Purpose:**  
      - Toggles the speaker output for the metronome at each timer overflow based on the metronome mode flag.
    - **Location in Code:** Defined immediately after the `sampleISR()` function.
 
-3. **myCanRxISR**  
+18. **myCanRxISR**  
    - **Implementation:** CAN Receive Interrupt  
    - **Purpose:**  
      - Triggered when a CAN message is received.  
      - Reads the incoming message and places it on a FreeRTOS queue for processing by `decodeTask`.
    - **Location in Code:** Defined with `extern "C"` linkage under `#if TEST_MODE == 0`.
 
-4. **myCanTxISR**  
+19. **myCanTxISR**  
    - **Implementation:** CAN Transmit Interrupt  
    - **Purpose:**  
      - Triggered upon completion of a CAN transmission.  
@@ -177,15 +181,15 @@ In a rate-monotonic system, the **critical instant** for a task occurs when it a
 
 For our synthesiser system, we consider the three main periodic tasks scheduled by FreeRTOS (using rate-monotonic scheduling):
 
-1. **scanKeysTask**  
+20. **scanKeysTask**  
    - **Initiation Interval (τ₁):** 20 ms  
    - **Measured Execution Time (T₁):** ~101.6 µs  
 
-2. **metronomeTask**  
+21. **metronomeTask**  
    - **Initiation Interval (τ₂):** 50 ms  
    - **Measured Execution Time (T₂):** ~4.6 µs  
 
-3. **displayUpdateTask**  
+22. **displayUpdateTask**  
    - **Initiation Interval (τ₃):** 100 ms  
    - **Measured Execution Time (T₃):** ~52 ms  
 
@@ -199,7 +203,7 @@ $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau
 
 #### Calculation Steps:
 
-1. **For scanKeysTask (T₁):**  
+23. **For scanKeysTask (T₁):**  
    $$\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5$$
    
    Thus, there are 5 instances of scanKeysTask in 100 ms.  
@@ -207,7 +211,7 @@ $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau
    Total interference from scanKeysTask:  
    $$ 5 \times 101.6 \, \mu s = 508 \, \mu s $$
 
-2. **For metronomeTask (T₂):**  
+24. **For metronomeTask (T₂):**  
    $$\frac{\tau_3}{\tau_2} = \frac{100 \, \text{ms}}{50 \, \text{ms}} = 2$$
    Total interference from metronomeTask:  
    $$ 2 \times 4.6 \, \mu s = 9.2 \, \mu s $$
@@ -255,10 +259,10 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 >6. An analysis of inter-task blocking dependencies that shows any possibility of deadlock
 
 ## Advanced Features
-1. Octave Tuning
-2. Polyphony
-3. ASDR Envelope
-4. Metronome Functionality
+26. Octave Tuning
+27. Polyphony
+28. ASDR Envelope
+29. Metronome Functionality
 
 ### Octave Tuning
 >[!IMPORTANT]

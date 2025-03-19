@@ -15,7 +15,7 @@
 // 7 = test polyphony stress test iteration           : ~3848 µs for 32 iterations (~120.3 µs per iteration)
 // 8 = test knob response/debounce iteration          : ~748 µs for 32 iterations (~23.4 µs per iteration)
 #ifndef TEST_MODE
-  #define TEST_MODE 8
+  #define TEST_MODE 0
 #endif
 
 #if TEST_MODE != 0
