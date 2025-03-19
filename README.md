@@ -165,36 +165,35 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 
 >[!IMPORTANT]
 >Things to add:
->1. An identification of all the tasks that are performed by the system with their method of implementation: thread or interrupt
->2. A characterisation of each task with its theoretical minimum initiation interval (including assumptions used) and measured maximum execution time
->3. A critical instant analysis of the rate monotonic scheduler, showing that all deadlines are met under worst-case conditions
+>1. An identification of all the tasks that are performed by the system with their method of implementation: thread or interrupt ✅
+>2. A characterisation of each task with its theoretical minimum initiation interval (including assumptions used) and measured maximum execution time ✅
+>3. A critical instant analysis of the rate monotonic scheduler, showing that all deadlines are met under worst-case conditions ✅
 >4. A quantification of total CPU utilisation
 >5. An identification of all the shared data structures and the methods used to guarantee safe access and synchronisation
 >6. An analysis of inter-task blocking dependencies that shows any possibility of deadlock
 
 ## Advanced Features
-1. Octave Tuning
-2. Polyphony
-3. ASDR Envelope
-4. Metronome Functionality
+1. [Octave Tuning](#octave-tuning)
+2. [Polyphony](#polyphony)
+3. [ADSR Envelope](#adsr-envelope)
+4. [Metronome](#metronome)
 
 ### Octave Tuning
 ![](images/octave.jpg)
-Octave tuning in this synthesizer lets the user dynamically shift the pitch range of the instrument by selecting a different octave through a dedicated knob (`knob2`). Changing the octave is done by toggling the `knob2` button which prompts the user with a display of the current octave. Working on the basic step approach from the core lab, the code adjusts these step sizes by shifting them right depending on how far the knob is turned from the default value of 1. 
+Octave tuning in this synthesiser lets the user dynamically shift the pitch range of the instrument by selecting a different octave through a dedicated knob (`knob2`). Changing the octave is done by rotating the second knob from the right (Knob 2) and pressing the same knob updates the display with the current octave. Using the same `Knob` class from the core lab, a new `Knob` object is declared for Knob 2, with lower and upper limits $1$ and $7$ respectively, simulating the full octave range of a real piano.
 
 ### Polyphony
-Each key press is treated as an independent "voice" with its own state, which includes frequency, phase, and the dedicated ADSR envelope. When a key is pressed, a free voice is allocated (or an existing one is re-triggered), and its parameters are set based on the note and octave. The sample ISR then iterates over all active voices, updating each one's envelope and phase accumulator before summing their outputs to generate the final sound. In this way, the dynamic characteristics of each note such as the ADSR phases, allow for a more layered audio output.
+Each key press is treated as an independent "sound" with its own state, which includes a phase accumulator, step size, flags for indicating key pressed or released, an `active` flag, and a dedicated ADSR envelope. When a key is pressed, a free sound slot is allocated (or an existing one is re-triggered), and its parameters are set based on the note and octave. The sample ISR then iterates over all active sounds, updating each one's envelope and phase accumulator before summing their outputs to generate the final sound. In this way, the dynamic characteristics of each note such as the ADSR phases, allow for a more layered audio output.
 
 ### ADSR Envelope
-The Attack Develope Sustain Release (ASDR) envelope. Each stage of the envelope controls a different aspect of the sound's dynamics:
+The Attack Develop Sustain Release (ADSR) envelope. Each stage of the envelope controls a different aspect of the sound's dynamics:
 - Attack (A): The time taken for the sound to reach its peak volume after a key is pressed. A short attack results in an immediate sound, while a long attack creates a gradual buildup.
 - Decay (D): The time taken for the sound to decrease from its peak to the sustain level. Short decay times create a sharp drop-off, while longer times make the transition smoother.
 - Sustain (S): The constant volume level maintained as long as the key is held down. Unlike the other parameters, sustain is a level rather than a time-based value.
 - Release (R): The time it takes for the sound to fade out completely after the key is released. A short release results in an abrupt stop, while a longer release allows the sound to decay gradually.
 By tuning the parameters of each stage, the sound emitted can be changed from a flat single tone, to have a dynamic fade in and fade out when a key is pressed.
 
-### Metronome Functionality
-![](images/metronome.jpg)
+### Metronome
 The metronome mode  allows the user to keep time while using keyboad. The metronome is toggled by depressing the `knob0` button at which point the display changes from the default into metronome mode. This mode periodically plays an audible 'click' sound where the tempo is adjustable between 40 and 240 bpm, to cover the range of tempos which a musician might use. 
 
 - **Metronome Task (Thread):**  
