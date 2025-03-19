@@ -117,60 +117,60 @@ For each task, the following characterisation includes:
   - **20 ms**  
   *Assumption:* The key scanning routine is scheduled periodically using `vTaskDelayUntil` with a 20-ms delay.
 - **Measured Maximum Execution Time:**  
-  - **~101.6 µs per iteration** (from TEST_MODE 1)
+  - **~101.6 µs per iteration** (from `TEST_MODE 1`)
 
 ### 2. **metronomeTask**
 - **Theoretical Minimum Initiation Interval:**  
   - **50 ms**  
   *Assumption:* The metronome task is scheduled every 50 ms to update the metronome timing based on the tempo knob.
 - **Measured Maximum Execution Time:**  
-  - **~4.6 µs per iteration** (from TEST_MODE 6, ~146 µs total for 32 iterations)
+  - **~4.6 µs per iteration** (from `TEST_MODE 6`, ~146 µs total for 32 iterations)
 
 ### 3. **displayUpdateTask**
 - **Theoretical Minimum Initiation Interval:**  
   - **100 ms**  
   *Assumption:* The OLED display is updated every 100 ms as determined by the task delay.
 - **Measured Maximum Execution Time:**  
-  - **~52 ms per iteration** (from TEST_MODE 2)
+  - **~52 ms per iteration** (from `TEST_MODE 2`)
 
 ### 4. **CAN_TX_Task** (Sender Mode Only)
 - **Theoretical Minimum Initiation Interval:**  
   - *Event-driven:* Initiated immediately when a key event occurs, subject to CAN hardware and queue availability.
 - **Measured Maximum Execution Time:**  
-  - **~2.3 µs per iteration** (from TEST_MODE 4)
+  - **~2.3 µs per iteration** (from `TEST_MODE 4`)
 
 ### 5. **decodeTask** (Receiver Mode Only)
 - **Theoretical Minimum Initiation Interval:**  
   - *Event-driven:* Triggered as soon as a CAN message is received, with negligible delay between events.
 - **Measured Maximum Execution Time:**  
-  - **~4 µs per iteration** (from TEST_MODE 3)
+  - **~4 µs per iteration** (from `TEST_MODE 3`)
 
 ### 6. **sampleISR** (Sound Synthesis Interrupt)
 - **Theoretical Minimum Initiation Interval:**  
   - **~45.45 µs**  
   *Assumption:* The hardware timer is configured for a 22 kHz sample rate (1/22000 ≈ 45.45 µs).
 - **Measured Maximum Execution Time:**  
-  - **~9 µs per iteration** (from TEST_MODE 5)
+  - **~9 µs per iteration** (from `TEST_MODE 5`)
 
 ### 7. **Polyphony Stress Test** (Integrated in TEST_MODE 7)
 - **Theoretical Minimum Initiation Interval:**  
   - *Event-driven:* Simulates rapid simultaneous activation of all voices. The minimum interval is limited by the key scan rate.
 - **Measured Maximum Execution Time:**  
-  - **~120.3 µs per iteration** (from TEST_MODE 7)
+  - **~120.3 µs per iteration** (from `TEST_MODE 7`)
 
 ### 8. **Knob Response/Debounce Test** (Integrated in TEST_MODE 8)
 - **Theoretical Minimum Initiation Interval:**  
   - *Event simulation:* Based on the complete cycle of rotary knob state changes (e.g., 0b00 → 0b01 → 0b11 → 0b10). The minimum interval depends on hardware and debounce constraints.
 - **Measured Maximum Execution Time:**  
-  - **~23.4 µs per iteration** (from TEST_MODE 8)
+  - **~23.4 µs per iteration** (from `TEST_MODE 8`)
  
 ## Critical Instant Analysis
 
 In a rate-monotonic system, the **critical instant** for a task occurs when it and all higher-priority tasks are initiated simultaneously. Under the following assumptions, deadlines are met if the worst-case response time of each task is less than or equal to its initiation interval (which we assume equals its deadline):
 
 - **Single CPU:** Only one task runs at a time.
-- **Fixed Initiation Interval (τ):** Each task is initiated periodically with a fixed period that is also its deadline.
-- **Fixed Task Priority:** Higher frequency tasks (shorter τ) receive higher priority.
+- **Fixed Initiation Interval ($\tau$):** Each task is initiated periodically with a fixed period that is also its deadline.
+- **Fixed Task Priority:** Higher frequency tasks (shorter $\tau$) receive higher priority.
 - **Negligible Overheads:** Context-switching and scheduling overheads are assumed to be minimal.
 
 ### System Tasks Under Analysis
@@ -193,48 +193,42 @@ These tasks are assigned priorities based on their periods (shorter period → h
 
 ### Worst-Case Response Time Calculation for the Lowest-Priority Task
 
-For the lowest-priority task (displayUpdateTask), the worst-case response time \( L_3 \) is given by the sum of its own execution time plus the interference from all higher-priority tasks within its period:
+For the lowest-priority task (displayUpdateTask), the worst-case response time $L_3$ is given by the sum of its own execution time plus the interference from all higher-priority tasks within its period:
 
-\[
-L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau_3}{\tau_2} \rceil \times T_2
-\]
+$$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau_3}{\tau_2} \rceil \times T_2$$
 
 #### Calculation Steps:
 
 1. **For scanKeysTask (T₁):**  
-   \(\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5\)  
+   $$\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5$$
    Thus, there are 5 instances of scanKeysTask in 100 ms.  
    Total interference from scanKeysTask:  
-   \( 5 \times 101.6 \, \mu s = 508 \, \mu s \)
+   $$ 5 \times 101.6 \, \mu s = 508 \, \mu s $$
 
 2. **For metronomeTask (T₂):**  
-   \(\frac{\tau_3}{\tau_2} = \frac{100 \, \text{ms}}{50 \, \text{ms}} = 2\)  
+   $$\frac{\tau_3}{\tau_2} = \frac{100 \, \text{ms}}{50 \, \text{ms}} = 2$$
    Total interference from metronomeTask:  
-   \( 2 \times 4.6 \, \mu s = 9.2 \, \mu s \)
+   $$ 2 \times 4.6 \, \mu s = 9.2 \, \mu s $$
 
 3. **For displayUpdateTask (T₃):**  
-   \( T_3 \approx 52 \, \text{ms} \)
+   $$ T_3 \approx 52 \, \text{ms} $
 
 So, the worst-case response time for displayUpdateTask is:
 
-\[
-L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms}
-\]
+$$L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms}$$
 
-Since \( L_3 \) (≈52.52 ms) is less than the task’s deadline of 100 ms (its initiation interval), the displayUpdateTask will always complete before its deadline under worst-case conditions.
+Since $L_3 \approx 52.52 ms$ is less than the task’s deadline of 100 ms (its initiation interval), the `displayUpdateTask` will always complete before its deadline under worst-case conditions.
 
 ### Analysis of Other Tasks
 
 - **scanKeysTask:**  
-  As the highest priority task, its worst-case response time is simply its execution time \( T_1 \approx 101.6 \, \mu s \), which is far below its 20 ms period.
+  As the highest priority task, its worst-case response time is simply its execution time $T_1 \approx 101.6 \, \mu s$, which is far below its 20 ms period.
 
 - **metronomeTask:**  
   The worst-case response time for metronomeTask includes interference from scanKeysTask.  
-  \(\lceil \frac{50 \, \text{ms}}{20 \, \text{ms}} \rceil = \lceil 2.5 \rceil = 3\) instances of scanKeysTask.  
+  $\lceil \frac{50 \, \text{ms}}{20 \, \text{ms}} \rceil = \lceil 2.5 \rceil = 3$ instances of scanKeysTask.  
   Thus,  
-  \[
-  L_2 = T_2 + 3 \times T_1 = 4.6 \, \mu s + 3 \times 101.6 \, \mu s \approx 309.4 \, \mu s
-  \]
+  $$L_2 = T_2 + 3 \times T_1 = 4.6 \, \mu s + 3 \times 101.6 \, \mu s \approx 309.4 \, \mu s $$
   This is well below its 50 ms deadline.
 
 ### Conclusion
@@ -282,8 +276,6 @@ By tuning the parameters of each stage, the sound emitted can be changed from a 
 
 ### Metronome Functionality
 The metronome mode  allows the user to keep time while using keyboad. The metronome is toggled by depressing the `knob0` button at which point the display changes from the default into metronome mode. This mode periodically plays an audible 'click' sound where the tempo is adjustable between 40 and 240 bpm, to cover the range of tempos which a musician might use. 
->
->
 
 - **Metronome Task (Thread):**  
   This thread runs periodically (every 50 ms) to read the tempo knob and update the metronome timer’s overflow period. Since adjusting the timer based on user input is not as time-critical, it can run as a lower-priority task without interfering with sound generation.
