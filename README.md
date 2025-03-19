@@ -14,6 +14,8 @@
 	3. [Knob Handling](#knob-handling)
 	4. [Test Modes vs. Normal Operation](#test-modes-vs-normal-operation)
 4. [Task Characterisation](#task-characterisation)
+5. [Critical Instant Analysis](#critical-instant-analysis)
+6. [Advanced Features](#advanced-features)
 
 ## Introduction
 This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
@@ -35,72 +37,22 @@ This GitHub repo serves as the submission for ES CW2. The full core functionalit
 This section identifies all the tasks performed by the synthesiser system and specifies whether they are implemented as FreeRTOS threads (tasks) or as hardware interrupt service routines (ISRs).
 
 ### FreeRTOS Tasks (Threads)
+| **Task Name**         | **Implementation**    | **Purpose** | **Location in Code** |
+|----------------------|----------------------|-------------|---------------------|
+| **scanKeysTask**     | FreeRTOS thread      | - Scans key matrix every 20 ms to detect key presses/releases. <br> - Updates rotary knob states. <br> - Shares input data with other tasks via a mutex. | `#if TEST_MODE == 0` |
+| **metronomeTask**    | FreeRTOS thread      | - Runs every 50 ms to update metronome timing based on the tempo knob. <br> - Computes timer interval and updates metronome timer’s overflow. | `#if TEST_MODE == 0` |
+| **displayUpdateTask** | FreeRTOS thread     | - Updates OLED display every 100 ms to show the current note/octave and volume level. <br> - Toggles an LED with each update. | `#if TEST_MODE != 2` |
+| **CAN_TX_Task** (Sender Mode Only) | FreeRTOS thread | - Waits for key events on a message queue. <br> - Transmits CAN messages after acquiring a counting semaphore to ensure a transmit mailbox is available. | `#ifdef MODULE_MODE_SENDER` <br> `#if TEST_MODE == 0` |
+| **decodeTask** (Receiver Mode Only) | FreeRTOS thread | - Processes incoming CAN messages from a queue. <br> - Triggers appropriate sound (start or release) based on received message. | `#ifdef MODULE_MODE_RECEIVER` <br> `#if TEST_MODE == 0` |
 
-1. **scanKeysTask**  
-   - **Implementation:** FreeRTOS thread  
-   - **Purpose:**  
-     - Scans the key matrix every 20 ms to detect key presses and releases.  
-     - Updates rotary knob states.  
-     - Shares input data with other tasks via a mutex.
-   - **Location in Code:** Defined in the block under `#if TEST_MODE == 0`.
-
-2. **metronomeTask**  
-   - **Implementation:** FreeRTOS thread  
-   - **Purpose:**  
-     - Runs every 50 ms to update metronome timing based on the tempo knob.  
-     - Computes the appropriate timer interval and updates the metronome timer’s overflow.
-   - **Location in Code:** Defined in the block under `#if TEST_MODE == 0`.
-
-3. **displayUpdateTask**  
-   - **Implementation:** FreeRTOS thread  
-   - **Purpose:**  
-     - Updates the OLED display every 100 ms to show the current note (or octave) and volume level.  
-     - Toggles an LED with each update.
-   - **Location in Code:** Defined in the block under `#if TEST_MODE != 2`.
-
-4. **CAN_TX_Task** (Sender Mode Only)  
-   - **Implementation:** FreeRTOS thread  
-   - **Purpose:**  
-     - Waits for key events on a message queue.  
-     - Transmits CAN messages after acquiring a counting semaphore to ensure a transmit mailbox is available.
-   - **Location in Code:** Enclosed within `#ifdef MODULE_MODE_SENDER` and `#if TEST_MODE == 0`.
-
-5. **decodeTask** (Receiver Mode Only)  
-   - **Implementation:** FreeRTOS thread  
-   - **Purpose:**  
-     - Processes incoming CAN messages from a queue.  
-     - Triggers the appropriate sound (start or release) based on the received message.
-   - **Location in Code:** Enclosed within `#ifdef MODULE_MODE_RECEIVER` and `#if TEST_MODE == 0`.
 
 ### Interrupt Service Routines (ISRs)
-
-1. **sampleISR**  
-   - **Implementation:** Hardware Timer Interrupt  
-   - **Purpose:**  
-     - Executes at a high frequency to perform audio synthesis.  
-     - Iterates through all active sounds, updating their ADSR envelope and phase accumulator.  
-     - Computes the final audio sample and writes it to the output.
-   - **Location in Code:** Defined under `#ifdef MODULE_MODE_RECEIVER` and `#if TEST_MODE == 0`.
-
-2. **metronomeISR**  
-   - **Implementation:** Hardware Timer Interrupt  
-   - **Purpose:**  
-     - Toggles the speaker output for the metronome at each timer overflow based on the metronome mode flag.
-   - **Location in Code:** Defined immediately after the `sampleISR()` function.
-
-3. **myCanRxISR**  
-   - **Implementation:** CAN Receive Interrupt  
-   - **Purpose:**  
-     - Triggered when a CAN message is received.  
-     - Reads the incoming message and places it on a FreeRTOS queue for processing by `decodeTask`.
-   - **Location in Code:** Defined with `extern "C"` linkage under `#if TEST_MODE == 0`.
-
-4. **myCanTxISR**  
-   - **Implementation:** CAN Transmit Interrupt  
-   - **Purpose:**  
-     - Triggered upon completion of a CAN transmission.  
-     - Releases a counting semaphore to signal that a transmit mailbox is available.
-   - **Location in Code:** Defined with `extern "C"` linkage under `#if TEST_MODE == 0`.
+| **ISR Name**         | **Implementation**              | **Purpose** | **Location in Code** |
+|----------------------|--------------------------------|-------------|---------------------|
+| **sampleISR**       | Hardware Timer Interrupt      | - Executes at a high frequency to perform audio synthesis. <br> - Iterates through all active sounds, updating their ADSR envelope and phase accumulator. <br> - Computes the final audio sample and writes it to the output. | `#ifdef MODULE_MODE_RECEIVER` <br> `#if TEST_MODE == 0` |
+| **metronomeISR**    | Hardware Timer Interrupt      | - Toggles the speaker output for the metronome at each timer overflow based on the metronome mode flag. | Defined immediately after `sampleISR()` |
+| **myCanRxISR**      | CAN Receive Interrupt        | - Triggered when a CAN message is received. <br> - Reads the incoming message and places it on a FreeRTOS queue for processing by `decodeTask`. | Defined with `extern "C"` linkage under `#if TEST_MODE == 0` |
+| **myCanTxISR**      | CAN Transmit Interrupt       | - Triggered upon completion of a CAN transmission. <br> - Releases a counting semaphore to signal that a transmit mailbox is available. | Defined with `extern "C"` linkage under `#if TEST_MODE == 0` |
 
 ### Knob Handling
 
@@ -120,60 +72,17 @@ This section identifies all the tasks performed by the synthesiser system and sp
 
 For each task, the following characterisation includes:
 
-- **Theoretical Minimum Initiation Interval:** The minimum period (or rate) at which the task can be initiated. For periodic tasks, this is based on the task delay settings or hardware timer configuration. For event‐driven tasks, it is assumed to be near-zero, limited only by hardware and communication delays.
-- **Measured Maximum Execution Time:** Based on our test modes, the worst-case execution time per iteration.
+| **Task/Interrupt**                     | **Theoretical Minimum Initiation Interval** | **Measured Maximum Execution Time** |
+|----------------------------------------|--------------------------------------------|------------------------------------|
+| **scanKeysTask**                        | **20 ms** <br> **Assumption:** The key scanning routine is scheduled periodically using `vTaskDelayUntil` with a 20-ms delay. | **~101.6 µs per iteration** (from `TEST_MODE 1`) |
+| **metronomeTask**                       | **50 ms** <br> **Assumption:** The metronome task is scheduled every 50 ms to update the metronome timing based on the tempo knob. | **~4.6 µs per iteration** (from `TEST_MODE 6`, ~146 µs total for 32 iterations) |
+| **displayUpdateTask**                    | **100 ms** <br> **Assumption:** The OLED display is updated every 100 ms as determined by the task delay. | **~52 ms per iteration** (from `TEST_MODE 2`) |
+| **CAN_TX_Task** (Sender Mode Only)       | **Event-driven:** Initiated immediately when a key event occurs, subject to CAN hardware and queue availability. | **~2.3 µs per iteration** (from `TEST_MODE 4`) |
+| **decodeTask** (Receiver Mode Only)      | **Event-driven:** Triggered as soon as a CAN message is received, with negligible delay between events. | **~4 µs per iteration** (from `TEST_MODE 3`) |
+| **sampleISR** (Sound Synthesis Interrupt) | **~45.45 µs** <br> **Assumption:** The hardware timer is configured for a 22 kHz sample rate (1/22000 ≈ 45.45 µs). | **~9 µs per iteration** (from `TEST_MODE 5`) |
+| **Polyphony Stress Test** (TEST_MODE 7)  | **Event-driven:** Simulates rapid simultaneous activation of all voices. The minimum interval is limited by the key scan rate. | **~120.3 µs per iteration** (from `TEST_MODE 7`) |
+| **Knob Response/Debounce Test** (TEST_MODE 8) | **Event simulation:** Based on the complete cycle of rotary knob state changes (e.g., 0b00 → 0b01 → 0b11 → 0b10). The minimum interval depends on hardware and debounce constraints. | **~23.4 µs per iteration** (from `TEST_MODE 8`) |
 
-### 1. **scanKeysTask**
-- **Theoretical Minimum Initiation Interval:**  
-  - **20 ms**  
-  *Assumption:* The key scanning routine is scheduled periodically using `vTaskDelayUntil` with a 20-ms delay.
-- **Measured Maximum Execution Time:**  
-  - **~101.6 µs per iteration** (from `TEST_MODE 1`)
-
-### 2. **metronomeTask**
-- **Theoretical Minimum Initiation Interval:**  
-  - **50 ms**  
-  *Assumption:* The metronome task is scheduled every 50 ms to update the metronome timing based on the tempo knob.
-- **Measured Maximum Execution Time:**  
-  - **~4.6 µs per iteration** (from `TEST_MODE 6`, ~146 µs total for 32 iterations)
-
-### 3. **displayUpdateTask**
-- **Theoretical Minimum Initiation Interval:**  
-  - **100 ms**  
-  *Assumption:* The OLED display is updated every 100 ms as determined by the task delay.
-- **Measured Maximum Execution Time:**  
-  - **~52 ms per iteration** (from `TEST_MODE 2`)
-
-### 4. **CAN_TX_Task** (Sender Mode Only)
-- **Theoretical Minimum Initiation Interval:**  
-  - *Event-driven:* Initiated immediately when a key event occurs, subject to CAN hardware and queue availability.
-- **Measured Maximum Execution Time:**  
-  - **~2.3 µs per iteration** (from `TEST_MODE 4`)
-
-### 5. **decodeTask** (Receiver Mode Only)
-- **Theoretical Minimum Initiation Interval:**  
-  - *Event-driven:* Triggered as soon as a CAN message is received, with negligible delay between events.
-- **Measured Maximum Execution Time:**  
-  - **~4 µs per iteration** (from `TEST_MODE 3`)
-
-### 6. **sampleISR** (Sound Synthesis Interrupt)
-- **Theoretical Minimum Initiation Interval:**  
-  - **~45.45 µs**  
-  *Assumption:* The hardware timer is configured for a 22 kHz sample rate (1/22000 ≈ 45.45 µs).
-- **Measured Maximum Execution Time:**  
-  - **~9 µs per iteration** (from `TEST_MODE 5`)
-
-### 7. **Polyphony Stress Test** (Integrated in TEST_MODE 7)
-- **Theoretical Minimum Initiation Interval:**  
-  - *Event-driven:* Simulates rapid simultaneous activation of all voices. The minimum interval is limited by the key scan rate.
-- **Measured Maximum Execution Time:**  
-  - **~120.3 µs per iteration** (from `TEST_MODE 7`)
-
-### 8. **Knob Response/Debounce Test** (Integrated in TEST_MODE 8)
-- **Theoretical Minimum Initiation Interval:**  
-  - *Event simulation:* Based on the complete cycle of rotary knob state changes (e.g., 0b00 → 0b01 → 0b11 → 0b10). The minimum interval depends on hardware and debounce constraints.
-- **Measured Maximum Execution Time:**  
-  - **~23.4 µs per iteration** (from `TEST_MODE 8`)
  
 ## Critical Instant Analysis
 
