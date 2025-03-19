@@ -9,6 +9,7 @@
 This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
 
 ## Completed Core Functionalities
+![](images/default.jpg)
 1. The synthesiser shall play the appropriate musical tone as a sawtooth wave when a key is pressed 
 2. There shall be no perceptible delay between pressing a key and the tone starting 
 3. There shall be a volume control with at least 8 increments, which shall be operated by turning a knob 
@@ -243,8 +244,6 @@ By performing a critical instant analysis using the measured execution times and
 
 Thus, under worst-case conditions, all deadlines are met according to the rate-monotonic scheduling analysis.
 
-
-
 >[!IMPORTANT]
 >Things to add:
 >1. An identification of all the tasks that are performed by the system with their method of implementation: thread or interrupt
@@ -261,12 +260,11 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 4. Metronome Functionality
 
 ### Octave Tuning
->[!IMPORTANT]
->Add details of this task
+![](images/octave.jpg)
+Octave tuning in this synthesizer lets the user dynamically shift the pitch range of the instrument by selecting a different octave through a dedicated knob (`knob2`). Changing the octave is done by toggling the `knob2` button which prompts the user with a display of the current octave. Working on the basic step approach from the core lab, the code adjusts these step sizes by shifting them right depending on how far the knob is turned from the default value of 1. 
 
 ### Polyphony
->[!IMPORTANT]
->Add details of this task
+Each key press is treated as an independent "voice" with its own state, which includes frequency, phase, and the dedicated ADSR envelope. When a key is pressed, a free voice is allocated (or an existing one is re-triggered), and its parameters are set based on the note and octave. The sample ISR then iterates over all active voices, updating each one's envelope and phase accumulator before summing their outputs to generate the final sound. In this way, the dynamic characteristics of each note such as the ADSR phases, allow for a more layered audio output.
 
 ### ADSR Envelope
 The Attack Develope Sustain Release (ASDR) envelope. Each stage of the envelope controls a different aspect of the sound's dynamics:
@@ -277,6 +275,7 @@ The Attack Develope Sustain Release (ASDR) envelope. Each stage of the envelope 
 By tuning the parameters of each stage, the sound emitted can be changed from a flat single tone, to have a dynamic fade in and fade out when a key is pressed.
 
 ### Metronome Functionality
+![](images/metronome.jpg)
 The metronome mode  allows the user to keep time while using keyboad. The metronome is toggled by depressing the `knob0` button at which point the display changes from the default into metronome mode. This mode periodically plays an audible 'click' sound where the tempo is adjustable between 40 and 240 bpm, to cover the range of tempos which a musician might use. 
 
 - **Metronome Task (Thread):**  
