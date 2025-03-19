@@ -12,8 +12,10 @@
 // 4 = test CAN_TX_Task() processing iteration        : ~74 µs for 32 iterations (~2.3 µs per iteration)
 // 5 = test sampleISR() execution time                : ~290 µs for 32 iterations (~9 µs per iteration)
 // 6 = test metronomeTask() iteration                 : ~146 µs for 32 iterations (~4.6 µs per iteration)
+// 7 = test polyphony stress test iteration           : ~3848 µs for 32 iterations (~120.3 µs per iteration)
+// 8 = test knob response/debounce iteration          : ~748 µs for 32 iterations (~23.4 µs per iteration)
 #ifndef TEST_MODE
-  #define TEST_MODE 0
+  #define TEST_MODE 8
 #endif
 
 #if TEST_MODE != 0
@@ -437,12 +439,45 @@ void testCANTXIteration() {
 // it reads the tempo knob, computes the metronomeInterval, and updates the timer.
 void testMetronomeIteration() {
   if (metronomeMode.load(std::memory_order_relaxed)) {  // Only if metronome mode is active
+    uint32_t metronomeInterval = 500; // Default 120 BPM (500ms per tick)
     uint32_t bpm = tempoKnob.getRotation();
     metronomeInterval = 60000 / bpm;
     metronomeTimer.setOverflow(metronomeInterval * 1000, MICROSEC_FORMAT);
   }
 }
 #endif
+
+#if TEST_MODE == 7
+// Test function for polyphony stress: simulate activating all voices concurrently.
+void testPolyphonyIteration() {
+  // Simulate key press for all voices.
+  for (uint8_t i = 0; i < MAX_SOUNDS; i++) {
+    // Using note index (i modulo 12) and octave 4 (for example)
+    startSound(i % 12, 4);
+  }
+  // Optionally simulate key release for all voices.
+  for (uint8_t i = 0; i < MAX_SOUNDS; i++) {
+    releaseSound(i % 12, 4);
+  }
+}
+#endif
+
+#if TEST_MODE == 8
+// Test function for knob response and debounce: simulate rapid knob rotations.
+void testKnobIteration() {
+  // Define a cycle of states that represent a clockwise rotation.
+  // For example: 0b00 -> 0b01 -> 0b11 -> 0b10.
+  uint8_t states[4] = {0b00, 0b01, 0b11, 0b10};
+  // Simulate several full cycles; here we use 10 cycles.
+  for (int cycle = 0; cycle < 10; cycle++) {
+    for (int i = 0; i < 4; i++) {
+      // 'false' indicates the knob button is not pressed.
+      volumeKnob.update(states[i], false);
+    }
+  }
+}
+#endif
+
 
 #if TEST_MODE == 0
 extern "C" void myCanRxISR(void) {
@@ -799,6 +834,26 @@ void setup() {
     Serial.print("Total time for 32 iterations of metronomeTask(): ");
     Serial.println(elapsed);
     while (1);
+  #elif TEST_MODE == 7
+    Serial.println("TEST MODE 7: Timing polyphony stress test iteration");
+    uint32_t startTime = micros();
+    for (int i = 0; i < 32; i++) {
+      testPolyphonyIteration();
+    }
+    uint32_t elapsed = micros() - startTime;
+    Serial.print("Total time for 32 iterations of polyphony stress test: ");
+    Serial.println(elapsed);
+    while(1);
+  #elif TEST_MODE == 8
+    Serial.println("TEST MODE 8: Timing knob response/debounce iteration");
+    uint32_t startTime = micros();
+    for (int i = 0; i < 32; i++) {
+      testKnobIteration();
+    }
+    uint32_t elapsed = micros() - startTime;
+    Serial.print("Total time for 32 iterations of knob response test: ");
+    Serial.println(elapsed);
+    while(1);
   #else
     // Normal operation: create tasks and start scheduler.
     TaskHandle_t scanKeysHandle = NULL;
