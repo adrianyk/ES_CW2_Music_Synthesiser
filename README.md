@@ -7,7 +7,13 @@
 
 ## Table of Contents
 1. [Introduction](#Introduction)
-2. [Completed Core Functionalities](#Completed-Core-Functionalities)
+2. [Completed Core Functionalities](#completed-core-functionalities)
+3. [Task Identification and Implementation](#task-identification-and-implementation)
+	1. [FreeRTOS Tasks (Threads)](#freertos-tasks-threads)
+	2. [Interrupt Service Routines (ISRs)](#interrupt-service-routines-isrs)
+	3. [Knob Handling](#knob-handling)
+	4. [Test Modes vs. Normal Operation](#test-modes-vs-normal-operation)
+4. [Task Characterisation](#task-characterisation)
 
 ## Introduction
 This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
