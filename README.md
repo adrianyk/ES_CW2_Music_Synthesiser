@@ -230,6 +230,7 @@ The Attack Develop Sustain Release (ADSR) envelope. Each stage of the envelope c
 By tuning the parameters of each stage, the sound emitted can be changed from a flat single tone, to have a dynamic fade in and fade out when a key is pressed.
 
 ### Metronome
+![](images/metronome.jpg)
 The metronome mode  allows the user to keep time while using keyboad. The metronome is toggled by depressing the `knob0` button at which point the display changes from the default into metronome mode. This mode periodically plays an audible 'click' sound where the tempo is adjustable between 40 and 240 bpm, to cover the range of tempos which a musician might use. 
 
 - **Metronome Task (Thread):**  
