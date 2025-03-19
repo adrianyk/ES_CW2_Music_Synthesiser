@@ -15,7 +15,10 @@
 	4. [Test Modes vs. Normal Operation](#test-modes-vs-normal-operation)
 4. [Task Characterisation](#task-characterisation)
 5. [Critical Instant Analysis](#critical-instant-analysis)
-6. [Advanced Features](#advanced-features)
+6. [Total CPU Utilization](#total-cpu-utilization)
+7. [Shared Data-Structures](#shared-data-structures)
+8. [Inter-Task Blocking Dependencies](#inter-task-blocking-dependencies)
+9. [Advanced Features](#advanced-features)
 
 ## Introduction
 This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
@@ -171,6 +174,39 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 >4. A quantification of total CPU utilisation
 >5. An identification of all the shared data structures and the methods used to guarantee safe access and synchronisation
 >6. An analysis of inter-task blocking dependencies that shows any possibility of deadlock
+
+## Total CPU Utilization
+>![Important]
+>Jungwon's part here
+
+## Shared Data Structures
+| **Shared Data Structure**      | **Used By**                  | **Synchronization Method**         | **Potential Issues** |
+|--------------------------------|------------------------------|------------------------------------|----------------------|
+| **Key State Matrix**           | `scanKeysTask`, `CAN_TX_Task` | Mutex (to prevent race conditions) | If not locked properly, key states may be corrupted. |
+| **Rotary Knob State**          | `scanKeysTask`, `Knob Response Test` | Mutex (to avoid simultaneous updates) | Incorrect knob readings if not synchronized properly. |
+| **OLED Display Buffer**        | `displayUpdateTask` | Mutex (if multiple tasks update display) | Risk of tearing or inconsistent display updates. |
+| **Metronome Timer Settings**   | `metronomeTask`, `metronomeISR` | Access controlled via task execution order | If updated mid-cycle, timing inconsistencies may occur. |
+| **FreeRTOS Message Queue (Key Events)** | `scanKeysTask`, `CAN_TX_Task` | Queue-based synchronization | Queue overflow may result in lost events. |
+| **FreeRTOS Message Queue (CAN Messages)** | `myCanRxISR`, `decodeTask` | Queue-based synchronization | Risk of message loss if queue is full. |
+| **Counting Semaphore (CAN Transmit Mailbox)** | `CAN_TX_Task`, `myCanTxISR` | Semaphore to signal available mailboxes | Deadlock possible if the semaphore is not released properly. |
+| **ADSR State & Phase Accumulator** | `sampleISR`, `decodeTask` | Task execution ordering | If modified mid-processing, incorrect sound synthesis may occur. |
+| **Voice Allocation Table** | `Polyphony Stress Test`, `sampleISR` | Mutex or atomic operations (if used) | High contention under heavy load. |
+
+## Inter-Task Blocking Dependencies
+### **Inter-Task Blocking Dependencies & Deadlock Analysis**
+| **Task/Interrupt**       | **Shared Resource**            | **Potential Blocking** | **Deadlock Risk?** |
+|--------------------------|--------------------------------|------------------------|--------------------|
+| **scanKeysTask**         | Mutex (key state), rotary knob state | Mutex contention if another task holds it for too long. | **Low** – Mutex delays may cause lag but not a deadlock. |
+| **metronomeTask**        | Timer configuration updates    | None detected         | **No risk** |
+| **displayUpdateTask**    | OLED display buffer, Mutex (if used) | May block if another task is updating display at the same time. | **Low** – Worst case: delayed screen updates. |
+| **CAN_TX_Task**         | FreeRTOS queue (key events), Counting Semaphore (CAN transmit mailbox) | Blocked if queue is full or if semaphore is not released. | **Medium** – If the `myCanTxISR` does not release the semaphore, a **deadlock** can occur. |
+| **decodeTask**          | FreeRTOS queue (CAN messages) | Blocked if queue is full and not read fast enough. | **Low** – Worst case: dropped CAN messages. |
+| **sampleISR**           | Shared ADSR state, Sound synthesis buffer | None detected (executed in interrupt context) | **No risk** |
+| **myCanRxISR**          | FreeRTOS queue (CAN message queue) | If queue is full, message loss occurs. | **No risk** – Message loss is not a deadlock. |
+| **myCanTxISR**          | Counting Semaphore (Transmit Mailbox) | If semaphore is not released, tasks waiting on it cannot proceed. | **Medium** – If `CAN_TX_Task` does not get a semaphore signal, it **deadlocks**. |
+| **Polyphony Stress Test** | Shared voice allocation table | High contention when many voices are playing. | **Low** – Performance degradation but no deadlock. |
+| **Knob Response/Debounce Test** | Shared rotary knob state | None detected | **No risk** |
+
 
 ## Advanced Features
 1. Octave Tuning
