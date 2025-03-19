@@ -95,7 +95,7 @@ This section identifies all the tasks performed by the synthesiser system and sp
 ### Knob Handling
 
 - **Implementation:**  
-  - The rotary knobs (for volume, octave, and tempo) are encapsulated within the `Knob` class.  
+  - The rotary knobs (for volume, octave, and tempo of metronome) are encapsulated within the `Knob` class.  
   - Their update logic is integrated into the key scanning routine (`scanKeysIteration()`), rather than implemented as separate tasks or ISRs.
 
 ### Test Modes vs. Normal Operation
