@@ -113,7 +113,7 @@ $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau
 3. **`displayUpdateTask` (T₃):**  
    $$ T_3 \approx 52 \, \text{ms} $$
 So, the worst-case response time for `displayUpdateTask` is:
-$$L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms}$$
+$$ L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms} $$
 Since $L_3 \approx 52.52 ms$ is less than the task’s deadline of 100 ms (its initiation interval), the `displayUpdateTask` will always complete before its deadline under worst-case conditions.
 
 ### Analysis of Other Tasks
@@ -122,7 +122,8 @@ Since $L_3 \approx 52.52 ms$ is less than the task’s deadline of 100 ms (its i
 - **`metronomeTask`:**  
   The worst-case response time for metronomeTask includes interference from scanKeysTask.  
   $\lceil \frac{50 \, \text{ms}}{20 \, \text{ms}} \rceil = \lceil 2.5 \rceil = 3$ instances of scanKeysTask.  
-  Thus,  $$L_2 = T_2 + 3 \times T_1 = 4.6 \, \mu s + 3 \times 101.6 \, \mu s \approx 309.4 \, \mu s $$This is well below its 50 ms deadline.
+  Thus,  $L_2 = T_2 + 3 \times T_1 = 4.6 \, \mu s + 3 \times 101.6 \, \mu s \approx 309.4 \, \mu s $
+  This is well below its 50 ms deadline.
 
 ### Conclusion
 By performing a critical instant analysis using the measured execution times and the configured initiation intervals, we have shown that:
@@ -136,7 +137,7 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 >1. An identification of all the tasks that are performed by the system with their method of implementation: thread or interrupt ✅
 >2. A characterisation of each task with its theoretical minimum initiation interval (including assumptions used) and measured maximum execution time ✅
 >3. A critical instant analysis of the rate monotonic scheduler, showing that all deadlines are met under worst-case conditions ✅
->4. A quantification of total CPU utilisation
+>4. A quantification of total CPU utilisation ✅
 >5. An identification of all the shared data structures and the methods used to guarantee safe access and synchronisation ✅
 >6. An analysis of inter-task blocking dependencies that shows any possibility of deadlock ✅
 
