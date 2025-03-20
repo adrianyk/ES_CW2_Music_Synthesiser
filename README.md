@@ -142,58 +142,61 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 >6. An analysis of inter-task blocking dependencies that shows any possibility of deadlock ✅
 
 ## Total CPU Utilization
-For each periodic task, the utilisation is given by:
+For each periodic task, the utilization is given by:
+
 $$
 U_i = \frac{T_i}{\tau_i}
 $$
-where $T_i$ is the worst-case execution time and $\tau_i$ is the task's period.
+
+where \( T_i \) is the worst-case execution time and \( \tau_i \) is the task's period.
 
 The measured parameters for our system are as follows:
 
-1. **scanKeysTask:**  
-   - $\tau_1 = 20\,\text{ms} = 20\,000\,\mu s$  
-   - $T_1 \approx 101.6\,\mu s$  
-   - Utilisation:
-     $$
-     U_1 = \frac{101.6\,\mu s}{20\,000\,\mu s} \approx 0.00508 \quad (0.51\%)
-     $$
+### 1. **scanKeysTask**
+- \( \tau_1 = 20\,\text{ms} = 20,000\,\mu s \)
+- \( T_1 \approx 101.6\,\mu s \)
+- Utilization:
+  $$
+  U_1 = \frac{101.6\,\mu s}{20,000\,\mu s} \approx 0.00508 \quad (0.51\%)
+  $$
 
-2. **metronomeTask:**  
-   - $\tau_2 = 50\,\text{ms} = 50\,000\,\mu s$  
-   - $T_2 \approx 4.6\,\mu s$  
-   - Utilisation:
-     $$
-     U_2 = \frac{4.6\,\mu s}{50\,000\,\mu s} \approx 0.000092 \quad (0.0092\%)
-     $$
+### 2. **metronomeTask**
+- \( \tau_2 = 50\,\text{ms} = 50,000\,\mu s \)
+- \( T_2 \approx 4.6\,\mu s \)
+- Utilization:
+  $$
+  U_2 = \frac{4.6\,\mu s}{50,000\,\mu s} \approx 0.000092 \quad (0.0092\%)
+  $$
 
-3. **displayUpdateTask:**  
-   - $\tau_3 = 100\,\text{ms} = 100\,000\,\mu s$  
-   - $T_3 \approx 52\,\text{ms} = 52\,000\,\mu s$  
-   - Utilisation:
-     $$
-     U_3 = \frac{52\,000\,\mu s}{100\,000\,\mu s} = 0.52 \quad (52\%)
-     $$
+### 3. **displayUpdateTask**
+- \( \tau_3 = 100\,\text{ms} = 100,000\,\mu s \)
+- \( T_3 \approx 52\,\text{ms} = 52,000\,\mu s \)
+- Utilization:
+  $$
+  U_3 = \frac{52,000\,\mu s}{100,000\,\mu s} = 0.52 \quad (52\%)
+  $$
 
-4. **sampleISR (Sound Synthesis ISR):**  
-   - At a sampling rate of 22 kHz, the period is:
-     $$
-     \tau_{\text{ISR}} \approx \frac{1}{22000} \approx 45.45\,\mu s
-     $$
-   - $T_{\text{ISR}} \approx 9\,\mu s$  
-   - Utilisation:
-     $$
-     U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad (19.8\%)
-     $$
+### 4. **sampleISR (Sound Synthesis ISR)**
+- At a sampling rate of 22 kHz, the period is:
 
-The total CPU utilisation is therefore:
+  $$
+  \tau_{\text{ISR}} \approx \frac{1}{22000} \approx 45.45\,\mu s
+  $$
+
+- \( T_{\text{ISR}} \approx 9\,\mu s \)
+- Utilization:
+  $$
+  U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad (19.8\%)
+  $$
+
+### **Total CPU Utilization**
+The total CPU utilization is:
 
 $$
 U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad (72.3\%)
 $$
 
-Since the worst-case CPU utilisation is approximately 72.3\%, which is below 100\%, we can conclude that all tasks can be scheduled without missing their deadlines under worst-case conditions.
-
-
+Since the worst-case CPU utilization is approximately **72.3%**, which is below **100%**, we can conclude that all tasks can be scheduled without missing their deadlines under worst-case conditions.
 
 
 ## Shared Data Structures
