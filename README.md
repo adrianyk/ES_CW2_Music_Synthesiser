@@ -144,9 +144,7 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 ## Total CPU Utilization
 For each periodic task, the utilization is given by:
 
-$$
-U_i = \frac{T_i}{\tau_i}
-$$
+$$U_i = \frac{T_i}{\tau_i}$$
 
 where \( T_i \) is the worst-case execution time and \( \tau_i \) is the task's period.
 
@@ -189,7 +187,6 @@ The measured parameters for our system are as follows:
   U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad (19.8\%)
   $$
 
-### **Total CPU Utilization**
 The total CPU utilization is:
 
 $$
