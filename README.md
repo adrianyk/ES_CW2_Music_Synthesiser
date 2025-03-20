@@ -104,13 +104,13 @@ For the lowest-priority task (`displayUpdateTask`), the worst-case response time
 $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau_3}{\tau_2} \rceil \times T_2$$
 
 #### Calculation Steps:
-4. **`scanKeysTask` (T₁):**  $$\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5$$
+1. **`scanKeysTask` (T₁):**  $$\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5$$
    Thus, there are 5 instances of `scanKeysTask` in 100 ms.  
    Total interference from `scanKeysTask`:  
    $$ 5 \times 101.6 \, \mu s = 508 \, \mu s $$
-5. **`metronomeTask` (T₂):**  $$\frac{\tau_3}{\tau_2} = \frac{100 \, \text{ms}}{50 \, \text{ms}} = 2$$
+2. **`metronomeTask` (T₂):**  $$\frac{\tau_3}{\tau_2} = \frac{100 \, \text{ms}}{50 \, \text{ms}} = 2$$
    Total interference from `metronomeTask`:  $$ 2 \times 4.6 \, \mu s = 9.2 \, \mu s $$
-6. **`displayUpdateTask` (T₃):**  
+3. **`displayUpdateTask` (T₃):**  
    $$ T_3 \approx 52 \, \text{ms} $$
 So, the worst-case response time for `displayUpdateTask` is:
 $$L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms}$$
@@ -172,10 +172,10 @@ Thus, under worst-case conditions, all deadlines are met according to the rate-m
 | **`Knob` Response/Debounce Test**      | Shared rotary knob state                                               | None detected                                                     | **No risk**                                                                                |
 
 ## Advanced Features
-7. [Octave Tuning](#octave-tuning)
-8. [Polyphony](#polyphony)
-9. [ADSR Envelope](#adsr-envelope)
-10. [Metronome](#metronome)
+1. [Octave Tuning](#octave-tuning)
+2. [Polyphony](#polyphony)
+3. [ADSR Envelope](#adsr-envelope)
+4. [Metronome](#metronome)
 
 ### Octave Tuning
 ![](images/octave.jpg)
@@ -200,3 +200,6 @@ The metronome mode  allows the user to keep time while using keyboad. The metron
 - **Metronome ISR:**  
   This is a high-priority, time-critical routine that is triggered by the timer overflow. Its sole job is to toggle the output (e.g., drive a speaker) to generate the metronome sound. Because ISRs are designed to execute quickly, they ensure that the sound is generated with minimal delay.
 By separating these concerns, the system can update the tempo asynchronously while ensuring that the sound generation remains real-time and responsive.
+
+>[!NOTE]
+>The video demonstrating the advanced features we have implemented can be found [here](https://imperiallondon-my.sharepoint.com/:v:/r/personal/akk121_ic_ac_uk/Documents/Laptop%20backup/Uni%20stuff/Year%203%20stuff/Embedded%20coursework/samsungsmartfridge_Advanced_Features.MOV?csf=1&web=1&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=EsDQ0F). 
