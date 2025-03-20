@@ -146,52 +146,40 @@ For each periodic task, the utilization is given by:
 
 $$U_i = \frac{T_i}{\tau_i}$$
 
-where \( T_i \) is the worst-case execution time and \( \tau_i \) is the task's period.
+where $$T_i$$ is the worst-case execution time and $$\tau_i$$ is the task's period.
 
 The measured parameters for our system are as follows:
 
 ### 1. **scanKeysTask**
-- \( \tau_1 = 20\,\text{ms} = 20,000\,\mu s \)
-- \( T_1 \approx 101.6\,\mu s \)
+- $$\tau_1 = 20\,\text{ms} = 20,000\,\mu s$$
+- $$T_1 \approx 101.6\,\mu s$$
 - Utilization:
-  $$
-  U_1 = \frac{101.6\,\mu s}{20,000\,\mu s} \approx 0.00508 \quad (0.51\%)
-  $$
+  $$U_1 = \frac{101.6\,\mu s}{20,000\,\mu s} \approx 0.00508 \quad (0.51\%)$$
 
 ### 2. **metronomeTask**
 - \( \tau_2 = 50\,\text{ms} = 50,000\,\mu s \)
 - \( T_2 \approx 4.6\,\mu s \)
 - Utilization:
-  $$
-  U_2 = \frac{4.6\,\mu s}{50,000\,\mu s} \approx 0.000092 \quad (0.0092\%)
-  $$
+  $$U_2 = \frac{4.6\,\mu s}{50,000\,\mu s} \approx 0.000092 \quad (0.0092\%)$$
 
 ### 3. **displayUpdateTask**
 - \( \tau_3 = 100\,\text{ms} = 100,000\,\mu s \)
 - \( T_3 \approx 52\,\text{ms} = 52,000\,\mu s \)
 - Utilization:
-  $$
-  U_3 = \frac{52,000\,\mu s}{100,000\,\mu s} = 0.52 \quad (52\%)
-  $$
+  $$U_3 = \frac{52,000\,\mu s}{100,000\,\mu s} = 0.52 \quad (52\%)$$
 
 ### 4. **sampleISR (Sound Synthesis ISR)**
 - At a sampling rate of 22 kHz, the period is:
 
-  $$
-  \tau_{\text{ISR}} \approx \frac{1}{22000} \approx 45.45\,\mu s
-  $$
+  $$\tau_{\text{ISR}} \approx \frac{1}{22000} \approx 45.45\,\mu s$$
 
 - \( T_{\text{ISR}} \approx 9\,\mu s \)
 - Utilization:
-  $$
-  U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad (19.8\%)
-  $$
+  $$U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad (19.8\%)$$
 
 The total CPU utilization is:
 
-$$
-U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad (72.3\%)
-$$
+$$U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad (72.3\%)$$
 
 Since the worst-case CPU utilization is approximately **72.3%**, which is below **100%**, we can conclude that all tasks can be scheduled without missing their deadlines under worst-case conditions.
 
