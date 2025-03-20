@@ -122,7 +122,7 @@ Since $L_3 \approx 52.52 ms$ is less than the task’s deadline of 100 ms (its i
 - **`metronomeTask`:**  
   The worst-case response time for metronomeTask includes interference from scanKeysTask.  
   $\lceil \frac{50 \, \text{ms}}{20 \, \text{ms}} \rceil = \lceil 2.5 \rceil = 3$ instances of scanKeysTask.  
-  Thus,  $L_2 = T_2 + 3 \times T_1 = 4.6 \, \mu s + 3 \times 101.6 \, \mu s \approx 309.4 \, \mu s $
+  Thus,  $$L_2 = T_2 + 3 \times T_1 = 4.6 \, \mu s + 3 \times 101.6 \, \mu s \approx 309.4 \, \mu s$$
   This is well below its 50 ms deadline.
 
 ### Conclusion
@@ -154,7 +154,7 @@ The measured parameters for our system are as follows:
 - $$\tau_1 = 20\text{ms} = 20,000\mu s$$
 - $$T_1 \approx 101.6\mu s$$
 - Utilization:
-  $$U_1 = \frac{101.6\mu s}{20,000\mu s} \approx 0.00508 \quad (0.51\%)$$
+  $$U_1 = \frac{101.6\mu s}{20,000\mu s} \approx 0.00508 \quad $$
 
 ### 2. **metronomeTask**
 - $$\tau_2 = 50\text{ms} = 50,000\mu s$$
