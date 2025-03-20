@@ -21,7 +21,7 @@
 9. [Advanced Features](#advanced-features)
 
 ## Introduction
-This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below.
+This GitHub repo serves as the submission for ES CW2. The full core functionality of the ES-SynthStarter has been implemented. In addition, advanced functionality and timing analyses are discussed below. The binary `.bin` file can be found in the `bin` folder, and the source code in the `src` folder. The `misc` folder contains code from the initial testing and development phases, used for separately refining advanced features. 
 
 ## Completed Core Functionalities
 ![](images/default.jpg)
@@ -33,6 +33,9 @@ This GitHub repo serves as the submission for ES CW2. The full core functionalit
 6. The synthesiser is configurable, during compilation or operation, to act as a sender module or receiver module.
 7. If the synthesiser is configured as a sender, it sends a message on the CAN bus whenever a key is pressed or released
 8. If the synthesiser is configured as a receiver, it plays a note or stop playing a note when it receives an appropriate message on the CAN bus
+
+>[!NOTE]
+>Our synthesiser can be configured as either a sender or a receiver. However, we chose to configure all modules as both sender and receiver, ensuring that when a key is pressed, the corresponding sound is played by all modules, regardless of which module detected the key press. As such, only one binary `.bin` file is needed.
 
 ## Task Identification and Implementation
 This section identifies all the tasks performed by the synthesiser system and specifies whether they are implemented as FreeRTOS threads (tasks) or as hardware interrupt service routines (ISRs).
@@ -132,15 +135,6 @@ By performing a critical instant analysis using the measured execution times and
 - **`metronomeTask`** meets its deadline (50 ms) with a worst-case response time of ~309.4 µs.
 - **`displayUpdateTask`** meets its deadline (100 ms) with a worst-case response time of ~52.52 ms.
 Thus, under worst-case conditions, all deadlines are met according to the rate-monotonic scheduling analysis.
-
->[!IMPORTANT]
->Things to add:
->1. An identification of all the tasks that are performed by the system with their method of implementation: thread or interrupt ✅
->2. A characterisation of each task with its theoretical minimum initiation interval (including assumptions used) and measured maximum execution time ✅
->3. A critical instant analysis of the rate monotonic scheduler, showing that all deadlines are met under worst-case conditions ✅
->4. A quantification of total CPU utilisation ✅
->5. An identification of all the shared data structures and the methods used to guarantee safe access and synchronisation ✅
->6. An analysis of inter-task blocking dependencies that shows any possibility of deadlock ✅
 
 ## Total CPU Utilization
 For each periodic task, the utilization is given by:
