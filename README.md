@@ -107,13 +107,14 @@ $$L_3 = T_3 + \lceil \frac{\tau_3}{\tau_1} \rceil \times T_1 + \lceil \frac{\tau
 1. **`scanKeysTask` (T₁):**  $$\frac{\tau_3}{\tau_1} = \frac{100 \, \text{ms}}{20 \, \text{ms}} = 5$$
    Thus, there are 5 instances of `scanKeysTask` in 100 ms.  
    Total interference from `scanKeysTask`:  
-   $$ 5 \times 101.6 \, \mu s = 508 \, \mu s $$
+   $$5 \times 101.6 \, \mu s = 508 \, \mu s$$
 2. **`metronomeTask` (T₂):**  $$\frac{\tau_3}{\tau_2} = \frac{100 \, \text{ms}}{50 \, \text{ms}} = 2$$
-   Total interference from `metronomeTask`:  $$ 2 \times 4.6 \, \mu s = 9.2 \, \mu s $$
+   Total interference from `metronomeTask`:  $$2 \times 4.6 \, \mu s = 9.2 \, \mu s$$
 3. **`displayUpdateTask` (T₃):**  
-   $$ T_3 \approx 52 \, \text{ms} $$
+   $$T_3 \approx 52 \, \text{ms}$$
 So, the worst-case response time for `displayUpdateTask` is:
-$$ L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms} $$
+   $$L_3 = 52 \, \text{ms} + 0.508 \, \text{ms} + 0.0092 \, \text{ms} \approx 52.5172 \, \text{ms}$$
+
 Since $L_3 \approx 52.52 ms$ is less than the task’s deadline of 100 ms (its initiation interval), the `displayUpdateTask` will always complete before its deadline under worst-case conditions.
 
 ### Analysis of Other Tasks
@@ -160,13 +161,13 @@ The measured parameters for our system are as follows:
 - $$\tau_2 = 50\text{ms} = 50,000\mu s$$
 - $$T_2 \approx 4.6\,\mu s$$
 - Utilization:
-  $$U_2 = \frac{4.6\mu s}{50,000\mu s} \approx 0.000092 \quad (0.0092\%)$$
+  $$U_2 = \frac{4.6\mu s}{50,000\mu s} \approx 0.000092 \quad$$
 
 ### 3. **displayUpdateTask**
 - $$\tau_3 = 100\text{ms} = 100,000\mu s$$
 - $$T_3 \approx 52\text{ms} = 52,000\mu s$$
 - Utilization:
-  $$U_3 = \frac{52,000\mu s}{100,000\mu s} = 0.52 \quad (52\%)$$
+  $$U_3 = \frac{52,000\mu s}{100,000\mu s} = 0.52 \quad$$
 
 ### 4. **sampleISR (Sound Synthesis ISR)**
 - At a sampling rate of 22 kHz, the period is:
@@ -175,11 +176,11 @@ The measured parameters for our system are as follows:
 
 - $$T_{\text{ISR}} \approx 9\,\mu s$$
 - Utilization:
-  $$U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad (19.8\%)$$
+  $$U_{\text{ISR}} = \frac{9\,\mu s}{45.45\,\mu s} \approx 0.198 \quad$$
 
 The total CPU utilization is:
 
-$$U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad (72.3\%)$$
+$$U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad (72.3%)$$
 
 Since the worst-case CPU utilization is approximately **72.3%**, which is below **100%**, we can conclude that all tasks can be scheduled without missing their deadlines under worst-case conditions.
 
