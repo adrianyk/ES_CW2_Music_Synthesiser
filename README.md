@@ -180,7 +180,7 @@ The measured parameters for our system are as follows:
 
 The total CPU utilization is:
 
-$$U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad (72.3%)$$
+$$U_{\text{total}} = U_1 + U_2 + U_3 + U_{\text{ISR}} \approx 0.00508 + 0.000092 + 0.52 + 0.198 \approx 0.723 \quad$$
 
 Since the worst-case CPU utilization is approximately **72.3%**, which is below **100%**, we can conclude that all tasks can be scheduled without missing their deadlines under worst-case conditions.
 
